@@ -1,8 +1,3 @@
-# To install vcpkg correctly
-# git pull
-#.\bootstrap-vcpkg.bat
-#.\vcpkg.exe integrate install
-# https://github.com/microsoft/vcpkg/issues/22074
 
 cmake_minimum_required(VERSION 3.30)
 project(EduCloud_Backend)
