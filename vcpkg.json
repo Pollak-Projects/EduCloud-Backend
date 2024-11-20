@@ -16,7 +16,11 @@
     "zlib",
     "libpq",
     "libpqxx",
-    "drogon"
+    "drogon",
+    {
+      "name": "drogon",
+      "features": [ "ctl" ]
+    }
   ],
   "features": {},
   "overrides": []
