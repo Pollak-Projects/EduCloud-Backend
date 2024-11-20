@@ -24,13 +24,18 @@ Press `double Shift` in Clion and search for `vcpkg` and add `<your path>` as th
 Run the project in Clion, and it will install the required libraries `Shift + F10`  
 This will take a while
 
-5. Set the styling in Clion
+5. Set up linker in Clion
+
+Go to `Build, Execution, Deployment -> Toolchains` and add the `Visual Studio` compiler
+
+6. Set the styling in Clion
 
 In Clion, go to `Editor -> Code Style -> C/C++` and set `Clion formatter` to `ClangFormat`
 
-6. Set up `drogon_ctl`
+7. Set up `drogon_ctl`
 
 Add the following to your user `PATH` environment variable
+
 
 ```
 <your_path_to_the_project_folder>\cmake-build-debug\vcpkg_installed\x64-windows\tools\drogon
@@ -42,6 +47,9 @@ Add the following to your user `PATH` environment variable
 <your_path_to_the_project_folder>\cmake-build-debug\vcpkg_installed\x64-windows\debug\lib
 ```
 
+8. Run the project
+
 #### Extra resources:
 - cmake complaining about missing MSVC [link](https://github.com/microsoft/vcpkg/issues/22074)
 - drogon installation video [link](https://www.youtube.com/watch?v=0ojHvu0Is6A)
+- linker complaining [link](https://github.com/davisking/dlib/issues/2921)
