@@ -14,8 +14,6 @@
   "dependencies": [
     "jsoncpp",
     "zlib",
-    "libpq",
-    "libpqxx",
     "drogon",
     {
       "name": "drogon",
