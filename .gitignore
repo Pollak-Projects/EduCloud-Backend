@@ -1,3 +1,4 @@
 # Clion generated folder
 cmake-build-debug/
 vcpkg/
+CMakeUserPresets.json
