@@ -4,6 +4,12 @@
 # vcpkg
 CMakeUserPresets.json
 
+# CMake
+build
+cmake-build-debug
+cmake-build-debug-visual-studio
+cmake-build-debug-release
+
 ### C ###
 # Prerequisites
 *.d

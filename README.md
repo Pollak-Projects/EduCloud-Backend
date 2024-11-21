@@ -26,7 +26,8 @@ This will take a while
 
 5. Set up linker in Clion
 
-Go to `Build, Execution, Deployment -> Toolchains` and add the `Visual Studio` compiler
+Go to `Build, Execution, Deployment -> Toolchains` and add the `Visual Studio` compiler  
+Then go to `Build, Execution, Deployment -> CMake` and set in `Debug` Toolchain to `Visual Studio`
 
 6. Set the styling in Clion
 
