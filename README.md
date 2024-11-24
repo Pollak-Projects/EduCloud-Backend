@@ -48,7 +48,9 @@ Add the following to your user `PATH` environment variable
 <your_path_to_the_project_folder>\cmake-build-debug\vcpkg_installed\x64-windows\debug\lib
 ```
 
-8. Run the project
+8. Don't forget to reload CMake when adding a new .h or .cpp file
+
+9. Run the project
 
 #### Extra resources:
 - cmake complaining about missing MSVC [link](https://github.com/microsoft/vcpkg/issues/22074)
