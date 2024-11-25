@@ -13,6 +13,7 @@
   "default-features": [],
   "dependencies": [
     "jsoncpp",
+    "yaml-cpp",
     "zlib",
     "drogon",
     {

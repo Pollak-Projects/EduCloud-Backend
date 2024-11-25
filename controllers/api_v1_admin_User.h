@@ -20,6 +20,7 @@ namespace api::v1::admin
         METHOD_ADD(User::create, "/create", Post);
         METHOD_ADD(User::updateById, "/update-by-id", Put);
         METHOD_ADD(User::deleteById, "/delete-by-id?id={id}", Delete);
+        ADD_METHOD_TO(User::login, "/api/v1/login", Post);
 
         METHOD_LIST_END
         // your declaration of processing function maybe like this:
@@ -32,5 +33,6 @@ namespace api::v1::admin
         void create(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback);
         void updateById(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback);
         void deleteById(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback);
+        void login(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback);
     };
 } // namespace api::v1::admin
