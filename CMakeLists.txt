@@ -43,9 +43,13 @@ else ()
 endif ()
 
 aux_source_directory(controllers CTL_SRC)
+aux_source_directory(middlewares MIDDLEWARE_SRC)
 aux_source_directory(filters FILTER_SRC)
 aux_source_directory(plugins PLUGIN_SRC)
 aux_source_directory(models MODEL_SRC)
+
+message(CTL_SRC: ${CTL_SRC})
+message(MIDDLEWARE_SRC: ${MIDDLEWARE_SRC})
 
 drogon_create_views(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/views
                     ${CMAKE_CURRENT_BINARY_DIR})
