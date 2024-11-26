@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.5)
 set(CMAKE_CXX_STANDARD 20)
 project(EduCloud-Backend CXX)
 
+set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
+
 include(CheckIncludeFileCXX)
 
 check_include_file_cxx(any HAS_ANY)
@@ -25,15 +27,18 @@ add_executable(${PROJECT_NAME} main.cc)
 # ##############################################################################
 # If you include the drogon source code locally in your project, use this method
 # to add drogon
-# add_subdirectory(drogon)
-# target_link_libraries(${PROJECT_NAME} PRIVATE drogon)
+add_subdirectory(drogon)
+target_link_libraries(${PROJECT_NAME} PRIVATE drogon)
 #
 # and comment out the following lines
-find_package(yaml-cpp CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE yaml-cpp::yaml-cpp)
-
-find_package(Drogon CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE Drogon::Drogon)
+#find_package(yaml-cpp CONFIG REQUIRED)
+#target_link_libraries(${PROJECT_NAME} PRIVATE yaml-cpp::yaml-cpp)
+#
+#find_package(unofficial-libmariadb CONFIG REQUIRED)
+#target_link_libraries(${PROJECT_NAME} PRIVATE unofficial::libmariadb)
+#
+#find_package(Drogon CONFIG REQUIRED)
+#target_link_libraries(${PROJECT_NAME} PRIVATE Drogon::Drogon)
 
 # ##############################################################################
 
@@ -51,15 +56,15 @@ aux_source_directory(filters FILTER_SRC)
 aux_source_directory(plugins PLUGIN_SRC)
 aux_source_directory(models MODEL_SRC)
 
-drogon_create_views(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/views
-        ${CMAKE_CURRENT_BINARY_DIR})
+#drogon_create_views(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/views
+#        ${CMAKE_CURRENT_BINARY_DIR})
 # use the following line to create views with namespaces.
-# drogon_create_views(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/views
-#                     ${CMAKE_CURRENT_BINARY_DIR} TRUE)
+drogon_create_views(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/views
+                 ${CMAKE_CURRENT_BINARY_DIR} TRUE)
 # use the following line to create views with namespace CHANGE_ME prefixed
 # and path namespaces.
-# drogon_create_views(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/views
-#                     ${CMAKE_CURRENT_BINARY_DIR} TRUE CHANGE_ME)
+drogon_create_views(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/views
+                 ${CMAKE_CURRENT_BINARY_DIR} TRUE DROGON_VIEW)
 
 target_include_directories(${PROJECT_NAME}
         PRIVATE EduCloud-Backend

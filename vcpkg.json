@@ -14,12 +14,8 @@
   "dependencies": [
     "jsoncpp",
     "yaml-cpp",
-    "zlib",
-    "drogon",
-    {
-      "name": "drogon",
-      "features": [ "ctl" ]
-    }
+    "zlib",du
+    "libmariadb"
   ],
   "features": {},
   "overrides": []

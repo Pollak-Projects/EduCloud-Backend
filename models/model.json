@@ -1,6 +1,6 @@
 {
     //rdbms: server type, postgresql,mysql or sqlite3
-    "rdbms": "postgresql",
+    "rdbms": "mysql",
     //filename: sqlite3 db file name
     //"filename":"",
     //host: server address,localhost by default;
