@@ -1,22 +1,17 @@
 {
-  "name": "educloud-backend",
-  "version": "0.0.1",
-  "port-version": 0,
-  "maintainers": [
-    "TGyAkos<https://github.com/TGyAkos>",
-    "OHOks<https://github.com/OHOKs>"
-  ],
-  "description": "",
-  "documentation": "",
-  "homepage": "",
-  "license": null,
-  "default-features": [],
-  "dependencies": [
-    "jsoncpp",
-    "yaml-cpp",
-    "zlib",du
-    "libmariadb"
-  ],
-  "features": {},
-  "overrides": []
+  "name" : "educloud-backend",
+  "version" : "0.0.1",
+  "port-version" : 0,
+  "maintainers" : [ "TGyAkos<https://github.com/TGyAkos>", "OHOks<https://github.com/OHOKs>" ],
+  "description" : "",
+  "documentation" : "",
+  "homepage" : "",
+  "license" : null,
+  "default-features" : [ ],
+  "dependencies" : [ "jsoncpp", "yaml-cpp", "zlib", "libmariadb", {
+    "name" : "drogon",
+    "version>=" : "1.9.8"
+  } ],
+  "features" : { },
+  "overrides" : [ ]
 }
