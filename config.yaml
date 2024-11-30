@@ -9,13 +9,13 @@
 #     # [Options, -SessionTicket],
 #     # [Options, Compression]
 #   ]
-#  listeners:
-#     # address: Ip address,0.0.0.0 by default
-#   - address: 127.0.0.1
-#     # port: Port number
-#     port: 3300
-#     # https: If true, use https for security,false by default
-#     https: false
+listeners:
+   # address: Ip address,0.0.0.0 by default
+ - address: 127.0.0.1
+   # port: Port number
+   port: 3300
+   # https: If true, use https for security,false by default
+   https: false
 #   - address: 0.0.0.0
 #     port: 443
 #     https: true

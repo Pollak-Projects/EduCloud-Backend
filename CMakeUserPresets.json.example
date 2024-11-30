@@ -2,7 +2,7 @@
     "version": 2,
     "configurePresets": [
       {
-        "name": "default",
+        "name": "default-user",
         "inherits": "vcpkg",
         "environment": {
           "VCPKG_ROOT": "<path to vcpkg>"
