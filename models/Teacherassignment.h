@@ -38,6 +38,8 @@ namespace drogon_model
 {
 namespace educloud
 {
+class Assignment;
+class Teacher;
 
 class Teacherassignment
 {
@@ -122,6 +124,14 @@ class Teacherassignment
     Json::Value toJson() const;
     Json::Value toMasqueradedJson(const std::vector<std::string> &pMasqueradingVector) const;
     /// Relationship interfaces
+    Assignment getAssignment(const drogon::orm::DbClientPtr &clientPtr) const;
+    void getAssignment(const drogon::orm::DbClientPtr &clientPtr,
+                       const std::function<void(Assignment)> &rcb,
+                       const drogon::orm::ExceptionCallback &ecb) const;
+    Teacher getTeacher(const drogon::orm::DbClientPtr &clientPtr) const;
+    void getTeacher(const drogon::orm::DbClientPtr &clientPtr,
+                    const std::function<void(Teacher)> &rcb,
+                    const drogon::orm::ExceptionCallback &ecb) const;
   private:
     friend drogon::orm::Mapper<Teacherassignment>;
     friend drogon::orm::BaseBuilder<Teacherassignment, true, true>;

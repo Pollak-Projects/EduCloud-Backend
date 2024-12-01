@@ -38,6 +38,10 @@ namespace drogon_model
 {
 namespace educloud
 {
+class Category;
+class Grade;
+class Profession;
+class Teacherassignment;
 
 class Assignment
 {
@@ -47,10 +51,10 @@ class Assignment
         static const std::string _Id;
         static const std::string _Name;
         static const std::string _Content;
-        static const std::string _Grade;
         static const std::string _Description;
         static const std::string _CreatedAt;
         static const std::string _UpdatedAt;
+        static const std::string _GradeId;
         static const std::string _CategoryId;
         static const std::string _ProfessionId;
     };
@@ -132,16 +136,6 @@ class Assignment
     void setContent(std::string &&pContent) noexcept;
     void setContentToNull() noexcept;
 
-    /**  For column Grade  */
-    ///Get the value of the column Grade, returns the default value if the column is null
-    const std::string &getValueOfGrade() const noexcept;
-    ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
-    const std::shared_ptr<std::string> &getGrade() const noexcept;
-    ///Set the value of the column Grade
-    void setGrade(const std::string &pGrade) noexcept;
-    void setGrade(std::string &&pGrade) noexcept;
-    void setGradeToNull() noexcept;
-
     /**  For column Description  */
     ///Get the value of the column Description, returns the default value if the column is null
     const std::string &getValueOfDescription() const noexcept;
@@ -170,6 +164,16 @@ class Assignment
     void setUpdatedat(const ::trantor::Date &pUpdatedat) noexcept;
     void setUpdatedatToNull() noexcept;
 
+    /**  For column GradeId  */
+    ///Get the value of the column GradeId, returns the default value if the column is null
+    const std::string &getValueOfGradeid() const noexcept;
+    ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
+    const std::shared_ptr<std::string> &getGradeid() const noexcept;
+    ///Set the value of the column GradeId
+    void setGradeid(const std::string &pGradeid) noexcept;
+    void setGradeid(std::string &&pGradeid) noexcept;
+    void setGradeidToNull() noexcept;
+
     /**  For column CategoryId  */
     ///Get the value of the column CategoryId, returns the default value if the column is null
     const std::string &getValueOfCategoryid() const noexcept;
@@ -197,6 +201,22 @@ class Assignment
     Json::Value toJson() const;
     Json::Value toMasqueradedJson(const std::vector<std::string> &pMasqueradingVector) const;
     /// Relationship interfaces
+    Teacherassignment getTeacherassignment(const drogon::orm::DbClientPtr &clientPtr) const;
+    void getTeacherassignment(const drogon::orm::DbClientPtr &clientPtr,
+                              const std::function<void(Teacherassignment)> &rcb,
+                              const drogon::orm::ExceptionCallback &ecb) const;
+    Grade getGrade(const drogon::orm::DbClientPtr &clientPtr) const;
+    void getGrade(const drogon::orm::DbClientPtr &clientPtr,
+                  const std::function<void(Grade)> &rcb,
+                  const drogon::orm::ExceptionCallback &ecb) const;
+    Category getCategory(const drogon::orm::DbClientPtr &clientPtr) const;
+    void getCategory(const drogon::orm::DbClientPtr &clientPtr,
+                     const std::function<void(Category)> &rcb,
+                     const drogon::orm::ExceptionCallback &ecb) const;
+    Profession getProfession(const drogon::orm::DbClientPtr &clientPtr) const;
+    void getProfession(const drogon::orm::DbClientPtr &clientPtr,
+                       const std::function<void(Profession)> &rcb,
+                       const drogon::orm::ExceptionCallback &ecb) const;
   private:
     friend drogon::orm::Mapper<Assignment>;
     friend drogon::orm::BaseBuilder<Assignment, true, true>;
@@ -215,10 +235,10 @@ class Assignment
     std::shared_ptr<std::string> id_;
     std::shared_ptr<std::string> name_;
     std::shared_ptr<std::string> content_;
-    std::shared_ptr<std::string> grade_;
     std::shared_ptr<std::string> description_;
     std::shared_ptr<::trantor::Date> createdat_;
     std::shared_ptr<::trantor::Date> updatedat_;
+    std::shared_ptr<std::string> gradeid_;
     std::shared_ptr<std::string> categoryid_;
     std::shared_ptr<std::string> professionid_;
     struct MetaData
@@ -268,25 +288,25 @@ class Assignment
         }
         if(dirtyFlag_[3])
         {
-            sql += "Grade,";
-            ++parametersCount;
-        }
-        if(dirtyFlag_[4])
-        {
             sql += "Description,";
             ++parametersCount;
         }
         sql += "CreatedAt,";
         ++parametersCount;
-        if(!dirtyFlag_[5])
+        if(!dirtyFlag_[4])
         {
             needSelection=true;
         }
         sql += "UpdatedAt,";
         ++parametersCount;
-        if(!dirtyFlag_[6])
+        if(!dirtyFlag_[5])
         {
             needSelection=true;
+        }
+        if(dirtyFlag_[6])
+        {
+            sql += "GradeId,";
+            ++parametersCount;
         }
         if(dirtyFlag_[7])
         {
@@ -338,6 +358,10 @@ class Assignment
             n = snprintf(placeholderStr,sizeof(placeholderStr),"$%d,",placeholder++);
             sql.append(placeholderStr, n);
         }
+        else
+        {
+            sql +="default,";
+        }
         if(dirtyFlag_[5])
         {
             n = snprintf(placeholderStr,sizeof(placeholderStr),"$%d,",placeholder++);
@@ -351,10 +375,6 @@ class Assignment
         {
             n = snprintf(placeholderStr,sizeof(placeholderStr),"$%d,",placeholder++);
             sql.append(placeholderStr, n);
-        }
-        else
-        {
-            sql +="default,";
         }
         if(dirtyFlag_[7])
         {

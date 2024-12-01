@@ -7,6 +7,115 @@
     "user": "postgres",
     "password": "pw",
     "tables": [],
+    "relationships": {
+        "enabled": true,
+        "items": [
+            {
+                "type": "has one",
+                "original_table_name": "User",
+                "original_key": "Id",
+                "target_table_name": "UserData",
+                "target_key": "UserId",
+                "enable_reverse": true
+            },
+            {
+                "type": "has one",
+                "original_table_name": "User",
+                "original_key": "Id",
+                "target_table_name": "TeacherUser",
+                "target_key": "UserId",
+                "enable_reverse": true
+            },
+            {
+                "type": "has one",
+                "original_table_name": "Teacher",
+                "original_key": "Id",
+                "target_table_name": "TeacherUser",
+                "target_key": "TeacherId ",
+                "enable_reverse": true
+            },
+            {
+                "type": "has one",
+                "original_table_name": "Assignment",
+                "original_key": "Id",
+                "target_table_name": "TeacherAssignment",
+                "target_key": "AssignmentId",
+                "enable_reverse": true
+            },
+            {
+                "type": "has one",
+                "original_table_name": "Subject",
+                "original_key": "Id",
+                "target_table_name": "TeacherSubject",
+                "target_key": "SubjectId",
+                "enable_reverse": true
+            },
+            {
+                "type": "has many",
+                "original_table_name": "Teacher",
+                "original_key": "Id",
+                "target_table_name": "TeacherAssignment",
+                "target_key": "TeacherId",
+                "enable_reverse": true
+            },
+            {
+                "type": "has many",
+                "original_table_name": "Teacher",
+                "original_key": "Id",
+                "target_table_name": "TeacherSubject",
+                "target_key": "TeacherId",
+                "enable_reverse": true
+            },
+            {
+                "type": "has many",
+                "original_table_name": "Grade",
+                "original_key": "Id",
+                "target_table_name": "Subject",
+                "target_key": "GradeId",
+                "enable_reverse": true
+            },
+            {
+                "type": "has many",
+                "original_table_name": "Grade",
+                "original_key": "Id",
+                "target_table_name": "Assignment",
+                "target_key": "GradeId",
+                "enable_reverse": true
+            },
+            {
+                "type": "has many",
+                "original_table_name": "Category",
+                "original_key": "Id",
+                "target_table_name": "Subject",
+                "target_key": "CategoryId",
+                "enable_reverse": true
+            },
+            {
+                "type": "has many",
+                "original_table_name": "Category",
+                "original_key": "Id",
+                "target_table_name": "Assignment",
+                "target_key": "CategoryId",
+                "enable_reverse": true
+            },
+            {
+                "type": "has many",
+                "original_table_name": "Profession",
+                "original_key": "Id",
+                "target_table_name": "Subject",
+                "target_key": "ProfessionId",
+                "enable_reverse": true
+            },
+            {
+                "type": "has many",
+                "original_table_name": "Profession",
+                "original_key": "Id",
+                "target_table_name": "Assignment",
+                "target_key": "ProfessionId",
+                "enable_reverse": true
+            }
+        ]
+    },
     "connect_options" : {
         "ssl_mode" : "DISABLED"
     }

@@ -38,6 +38,8 @@ namespace drogon_model
 {
 namespace educloud
 {
+class Teacher;
+class User;
 
 class Teacheruser
 {
@@ -52,7 +54,7 @@ class Teacheruser
     static const std::string tableName;
     static const bool hasPrimaryKey;
     static const std::vector<std::string> primaryKeyName;
-    using PrimaryKeyType = std::tuple<std::string,std::string>;//TeacherId,UserId
+    using PrimaryKeyType = std::tuple<std::string,std::string>;//UserId,TeacherId
     PrimaryKeyType getPrimaryKey() const;
 
     /**
@@ -122,6 +124,14 @@ class Teacheruser
     Json::Value toJson() const;
     Json::Value toMasqueradedJson(const std::vector<std::string> &pMasqueradingVector) const;
     /// Relationship interfaces
+    User getUser(const drogon::orm::DbClientPtr &clientPtr) const;
+    void getUser(const drogon::orm::DbClientPtr &clientPtr,
+                 const std::function<void(User)> &rcb,
+                 const drogon::orm::ExceptionCallback &ecb) const;
+    Teacher getTeacher(const drogon::orm::DbClientPtr &clientPtr) const;
+    void getTeacher(const drogon::orm::DbClientPtr &clientPtr,
+                    const std::function<void(Teacher)> &rcb,
+                    const drogon::orm::ExceptionCallback &ecb) const;
   private:
     friend drogon::orm::Mapper<Teacheruser>;
     friend drogon::orm::BaseBuilder<Teacheruser, true, true>;
@@ -154,13 +164,13 @@ class Teacheruser
   public:
     static const std::string &sqlForFindingByPrimaryKey()
     {
-        static const std::string sql="select * from " + tableName + " where TeacherId = $1 and UserId = $2";
+        static const std::string sql="select * from " + tableName + " where UserId = $1 and TeacherId = $2";
         return sql;
     }
 
     static const std::string &sqlForDeletingByPrimaryKey()
     {
-        static const std::string sql="delete from " + tableName + " where TeacherId = $1 and UserId = $2";
+        static const std::string sql="delete from " + tableName + " where UserId = $1 and TeacherId = $2";
         return sql;
     }
     std::string sqlForInserting(bool &needSelection) const

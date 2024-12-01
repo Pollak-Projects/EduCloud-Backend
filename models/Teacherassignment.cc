@@ -6,6 +6,8 @@
  */
 
 #include "Teacherassignment.h"
+#include "Assignment.h"
+#include "Teacher.h"
 #include <drogon/utils/Utilities.h>
 #include <string>
 
@@ -516,4 +518,90 @@ bool Teacherassignment::validJsonOfField(size_t index,
             return false;
     }
     return true;
+}
+Assignment Teacherassignment::getAssignment(const DbClientPtr &clientPtr) const {
+    static const std::string sql = "select * from Assignment where Id = $1";
+    Result r(nullptr);
+    {
+        auto binder = *clientPtr << sql;
+        binder << *assignmentid_ << Mode::Blocking >>
+            [&r](const Result &result) { r = result; };
+        binder.exec();
+    }
+    if (r.size() == 0)
+    {
+        throw UnexpectedRows("0 rows found");
+    }
+    else if (r.size() > 1)
+    {
+        throw UnexpectedRows("Found more than one row");
+    }
+    return Assignment(r[0]);
+}
+
+void Teacherassignment::getAssignment(const DbClientPtr &clientPtr,
+                                      const std::function<void(Assignment)> &rcb,
+                                      const ExceptionCallback &ecb) const
+{
+    static const std::string sql = "select * from Assignment where Id = $1";
+    *clientPtr << sql
+               << *assignmentid_
+               >> [rcb = std::move(rcb), ecb](const Result &r){
+                    if (r.size() == 0)
+                    {
+                        ecb(UnexpectedRows("0 rows found"));
+                    }
+                    else if (r.size() > 1)
+                    {
+                        ecb(UnexpectedRows("Found more than one row"));
+                    }
+                    else
+                    {
+                        rcb(Assignment(r[0]));
+                    }
+               }
+               >> ecb;
+}
+Teacher Teacherassignment::getTeacher(const DbClientPtr &clientPtr) const {
+    static const std::string sql = "select * from Teacher where Id = $1";
+    Result r(nullptr);
+    {
+        auto binder = *clientPtr << sql;
+        binder << *teacherid_ << Mode::Blocking >>
+            [&r](const Result &result) { r = result; };
+        binder.exec();
+    }
+    if (r.size() == 0)
+    {
+        throw UnexpectedRows("0 rows found");
+    }
+    else if (r.size() > 1)
+    {
+        throw UnexpectedRows("Found more than one row");
+    }
+    return Teacher(r[0]);
+}
+
+void Teacherassignment::getTeacher(const DbClientPtr &clientPtr,
+                                   const std::function<void(Teacher)> &rcb,
+                                   const ExceptionCallback &ecb) const
+{
+    static const std::string sql = "select * from Teacher where Id = $1";
+    *clientPtr << sql
+               << *teacherid_
+               >> [rcb = std::move(rcb), ecb](const Result &r){
+                    if (r.size() == 0)
+                    {
+                        ecb(UnexpectedRows("0 rows found"));
+                    }
+                    else if (r.size() > 1)
+                    {
+                        ecb(UnexpectedRows("Found more than one row"));
+                    }
+                    else
+                    {
+                        rcb(Teacher(r[0]));
+                    }
+               }
+               >> ecb;
 }

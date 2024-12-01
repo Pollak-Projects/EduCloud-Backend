@@ -6,6 +6,8 @@
  */
 
 #include "User.h"
+#include "Teacheruser.h"
+#include "Userdata.h"
 #include <drogon/utils/Utilities.h>
 #include <string>
 
@@ -25,9 +27,9 @@ const std::string User::tableName = "\"User\"";
 
 const std::vector<typename User::MetaData> User::metaData_={
 {"Id","std::string","uuid",0,0,1,1},
-{"Username","std::string","character varying",0,0,0,1},
-{"HashedPwd","std::string","character varying",0,0,0,1},
-{"DisplayName","std::string","character varying",0,0,0,1},
+{"Username","std::string","text",0,0,0,1},
+{"HashedPwd","std::string","text",0,0,0,1},
+{"DisplayName","std::string","text",0,0,0,1},
 {"Created_at","::trantor::Date","timestamp without time zone",0,0,0,0},
 {"Updated_at","::trantor::Date","timestamp without time zone",0,0,0,0}
 };
@@ -1349,4 +1351,90 @@ bool User::validJsonOfField(size_t index,
             return false;
     }
     return true;
+}
+Userdata User::getUserdata(const DbClientPtr &clientPtr) const {
+    static const std::string sql = "select * from UserData where UserId = $1";
+    Result r(nullptr);
+    {
+        auto binder = *clientPtr << sql;
+        binder << *id_ << Mode::Blocking >>
+            [&r](const Result &result) { r = result; };
+        binder.exec();
+    }
+    if (r.size() == 0)
+    {
+        throw UnexpectedRows("0 rows found");
+    }
+    else if (r.size() > 1)
+    {
+        throw UnexpectedRows("Found more than one row");
+    }
+    return Userdata(r[0]);
+}
+
+void User::getUserdata(const DbClientPtr &clientPtr,
+                       const std::function<void(Userdata)> &rcb,
+                       const ExceptionCallback &ecb) const
+{
+    static const std::string sql = "select * from UserData where UserId = $1";
+    *clientPtr << sql
+               << *id_
+               >> [rcb = std::move(rcb), ecb](const Result &r){
+                    if (r.size() == 0)
+                    {
+                        ecb(UnexpectedRows("0 rows found"));
+                    }
+                    else if (r.size() > 1)
+                    {
+                        ecb(UnexpectedRows("Found more than one row"));
+                    }
+                    else
+                    {
+                        rcb(Userdata(r[0]));
+                    }
+               }
+               >> ecb;
+}
+Teacheruser User::getTeacheruser(const DbClientPtr &clientPtr) const {
+    static const std::string sql = "select * from TeacherUser where UserId = $1";
+    Result r(nullptr);
+    {
+        auto binder = *clientPtr << sql;
+        binder << *id_ << Mode::Blocking >>
+            [&r](const Result &result) { r = result; };
+        binder.exec();
+    }
+    if (r.size() == 0)
+    {
+        throw UnexpectedRows("0 rows found");
+    }
+    else if (r.size() > 1)
+    {
+        throw UnexpectedRows("Found more than one row");
+    }
+    return Teacheruser(r[0]);
+}
+
+void User::getTeacheruser(const DbClientPtr &clientPtr,
+                          const std::function<void(Teacheruser)> &rcb,
+                          const ExceptionCallback &ecb) const
+{
+    static const std::string sql = "select * from TeacherUser where UserId = $1";
+    *clientPtr << sql
+               << *id_
+               >> [rcb = std::move(rcb), ecb](const Result &r){
+                    if (r.size() == 0)
+                    {
+                        ecb(UnexpectedRows("0 rows found"));
+                    }
+                    else if (r.size() > 1)
+                    {
+                        ecb(UnexpectedRows("Found more than one row"));
+                    }
+                    else
+                    {
+                        rcb(Teacheruser(r[0]));
+                    }
+               }
+               >> ecb;
 }

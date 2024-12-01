@@ -6,6 +6,10 @@
  */
 
 #include "Assignment.h"
+#include "Category.h"
+#include "Grade.h"
+#include "Profession.h"
+#include "Teacherassignment.h"
 #include <drogon/utils/Utilities.h>
 #include <string>
 
@@ -16,10 +20,10 @@ using namespace drogon_model::educloud;
 const std::string Assignment::Cols::_Id = "\"Id\"";
 const std::string Assignment::Cols::_Name = "\"Name\"";
 const std::string Assignment::Cols::_Content = "\"Content\"";
-const std::string Assignment::Cols::_Grade = "\"Grade\"";
 const std::string Assignment::Cols::_Description = "\"Description\"";
 const std::string Assignment::Cols::_CreatedAt = "\"CreatedAt\"";
 const std::string Assignment::Cols::_UpdatedAt = "\"UpdatedAt\"";
+const std::string Assignment::Cols::_GradeId = "\"GradeId\"";
 const std::string Assignment::Cols::_CategoryId = "\"CategoryId\"";
 const std::string Assignment::Cols::_ProfessionId = "\"ProfessionId\"";
 const std::string Assignment::primaryKeyName = "Id";
@@ -28,12 +32,12 @@ const std::string Assignment::tableName = "\"Assignment\"";
 
 const std::vector<typename Assignment::MetaData> Assignment::metaData_={
 {"Id","std::string","uuid",0,0,1,1},
-{"Name","std::string","character varying",0,0,0,1},
+{"Name","std::string","text",0,0,0,1},
 {"Content","std::string","text",0,0,0,0},
-{"Grade","std::string","character varying",0,0,0,0},
 {"Description","std::string","text",0,0,0,0},
 {"CreatedAt","::trantor::Date","timestamp without time zone",0,0,0,0},
 {"UpdatedAt","::trantor::Date","timestamp without time zone",0,0,0,0},
+{"GradeId","std::string","uuid",0,0,0,0},
 {"CategoryId","std::string","uuid",0,0,0,0},
 {"ProfessionId","std::string","uuid",0,0,0,0}
 };
@@ -57,10 +61,6 @@ Assignment::Assignment(const Row &r, const ssize_t indexOffset) noexcept
         if(!r["Content"].isNull())
         {
             content_=std::make_shared<std::string>(r["Content"].as<std::string>());
-        }
-        if(!r["Grade"].isNull())
-        {
-            grade_=std::make_shared<std::string>(r["Grade"].as<std::string>());
         }
         if(!r["Description"].isNull())
         {
@@ -110,6 +110,10 @@ Assignment::Assignment(const Row &r, const ssize_t indexOffset) noexcept
                 updatedat_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
             }
         }
+        if(!r["GradeId"].isNull())
+        {
+            gradeid_=std::make_shared<std::string>(r["GradeId"].as<std::string>());
+        }
         if(!r["CategoryId"].isNull())
         {
             categoryid_=std::make_shared<std::string>(r["CategoryId"].as<std::string>());
@@ -146,14 +150,9 @@ Assignment::Assignment(const Row &r, const ssize_t indexOffset) noexcept
         index = offset + 3;
         if(!r[index].isNull())
         {
-            grade_=std::make_shared<std::string>(r[index].as<std::string>());
-        }
-        index = offset + 4;
-        if(!r[index].isNull())
-        {
             description_=std::make_shared<std::string>(r[index].as<std::string>());
         }
-        index = offset + 5;
+        index = offset + 4;
         if(!r[index].isNull())
         {
             auto timeStr = r[index].as<std::string>();
@@ -176,7 +175,7 @@ Assignment::Assignment(const Row &r, const ssize_t indexOffset) noexcept
                 createdat_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
             }
         }
-        index = offset + 6;
+        index = offset + 5;
         if(!r[index].isNull())
         {
             auto timeStr = r[index].as<std::string>();
@@ -198,6 +197,11 @@ Assignment::Assignment(const Row &r, const ssize_t indexOffset) noexcept
                 }
                 updatedat_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
             }
+        }
+        index = offset + 6;
+        if(!r[index].isNull())
+        {
+            gradeid_=std::make_shared<std::string>(r[index].as<std::string>());
         }
         index = offset + 7;
         if(!r[index].isNull())
@@ -249,7 +253,7 @@ Assignment::Assignment(const Json::Value &pJson, const std::vector<std::string> 
         dirtyFlag_[3] = true;
         if(!pJson[pMasqueradingVector[3]].isNull())
         {
-            grade_=std::make_shared<std::string>(pJson[pMasqueradingVector[3]].asString());
+            description_=std::make_shared<std::string>(pJson[pMasqueradingVector[3]].asString());
         }
     }
     if(!pMasqueradingVector[4].empty() && pJson.isMember(pMasqueradingVector[4]))
@@ -257,7 +261,25 @@ Assignment::Assignment(const Json::Value &pJson, const std::vector<std::string> 
         dirtyFlag_[4] = true;
         if(!pJson[pMasqueradingVector[4]].isNull())
         {
-            description_=std::make_shared<std::string>(pJson[pMasqueradingVector[4]].asString());
+            auto timeStr = pJson[pMasqueradingVector[4]].asString();
+            struct tm stm;
+            memset(&stm,0,sizeof(stm));
+            auto p = strptime(timeStr.c_str(),"%Y-%m-%d %H:%M:%S",&stm);
+            time_t t = mktime(&stm);
+            size_t decimalNum = 0;
+            if(p)
+            {
+                if(*p=='.')
+                {
+                    std::string decimals(p+1,&timeStr[timeStr.length()]);
+                    while(decimals.length()<6)
+                    {
+                        decimals += "0";
+                    }
+                    decimalNum = (size_t)atol(decimals.c_str());
+                }
+                createdat_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
+            }
         }
     }
     if(!pMasqueradingVector[5].empty() && pJson.isMember(pMasqueradingVector[5]))
@@ -282,7 +304,7 @@ Assignment::Assignment(const Json::Value &pJson, const std::vector<std::string> 
                     }
                     decimalNum = (size_t)atol(decimals.c_str());
                 }
-                createdat_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
+                updatedat_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
             }
         }
     }
@@ -291,25 +313,7 @@ Assignment::Assignment(const Json::Value &pJson, const std::vector<std::string> 
         dirtyFlag_[6] = true;
         if(!pJson[pMasqueradingVector[6]].isNull())
         {
-            auto timeStr = pJson[pMasqueradingVector[6]].asString();
-            struct tm stm;
-            memset(&stm,0,sizeof(stm));
-            auto p = strptime(timeStr.c_str(),"%Y-%m-%d %H:%M:%S",&stm);
-            time_t t = mktime(&stm);
-            size_t decimalNum = 0;
-            if(p)
-            {
-                if(*p=='.')
-                {
-                    std::string decimals(p+1,&timeStr[timeStr.length()]);
-                    while(decimals.length()<6)
-                    {
-                        decimals += "0";
-                    }
-                    decimalNum = (size_t)atol(decimals.c_str());
-                }
-                updatedat_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
-            }
+            gradeid_=std::make_shared<std::string>(pJson[pMasqueradingVector[6]].asString());
         }
     }
     if(!pMasqueradingVector[7].empty() && pJson.isMember(pMasqueradingVector[7]))
@@ -356,17 +360,9 @@ Assignment::Assignment(const Json::Value &pJson) noexcept(false)
             content_=std::make_shared<std::string>(pJson["Content"].asString());
         }
     }
-    if(pJson.isMember("Grade"))
-    {
-        dirtyFlag_[3]=true;
-        if(!pJson["Grade"].isNull())
-        {
-            grade_=std::make_shared<std::string>(pJson["Grade"].asString());
-        }
-    }
     if(pJson.isMember("Description"))
     {
-        dirtyFlag_[4]=true;
+        dirtyFlag_[3]=true;
         if(!pJson["Description"].isNull())
         {
             description_=std::make_shared<std::string>(pJson["Description"].asString());
@@ -374,7 +370,7 @@ Assignment::Assignment(const Json::Value &pJson) noexcept(false)
     }
     if(pJson.isMember("CreatedAt"))
     {
-        dirtyFlag_[5]=true;
+        dirtyFlag_[4]=true;
         if(!pJson["CreatedAt"].isNull())
         {
             auto timeStr = pJson["CreatedAt"].asString();
@@ -400,7 +396,7 @@ Assignment::Assignment(const Json::Value &pJson) noexcept(false)
     }
     if(pJson.isMember("UpdatedAt"))
     {
-        dirtyFlag_[6]=true;
+        dirtyFlag_[5]=true;
         if(!pJson["UpdatedAt"].isNull())
         {
             auto timeStr = pJson["UpdatedAt"].asString();
@@ -422,6 +418,14 @@ Assignment::Assignment(const Json::Value &pJson) noexcept(false)
                 }
                 updatedat_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
             }
+        }
+    }
+    if(pJson.isMember("GradeId"))
+    {
+        dirtyFlag_[6]=true;
+        if(!pJson["GradeId"].isNull())
+        {
+            gradeid_=std::make_shared<std::string>(pJson["GradeId"].asString());
         }
     }
     if(pJson.isMember("CategoryId"))
@@ -478,7 +482,7 @@ void Assignment::updateByMasqueradedJson(const Json::Value &pJson,
         dirtyFlag_[3] = true;
         if(!pJson[pMasqueradingVector[3]].isNull())
         {
-            grade_=std::make_shared<std::string>(pJson[pMasqueradingVector[3]].asString());
+            description_=std::make_shared<std::string>(pJson[pMasqueradingVector[3]].asString());
         }
     }
     if(!pMasqueradingVector[4].empty() && pJson.isMember(pMasqueradingVector[4]))
@@ -486,7 +490,25 @@ void Assignment::updateByMasqueradedJson(const Json::Value &pJson,
         dirtyFlag_[4] = true;
         if(!pJson[pMasqueradingVector[4]].isNull())
         {
-            description_=std::make_shared<std::string>(pJson[pMasqueradingVector[4]].asString());
+            auto timeStr = pJson[pMasqueradingVector[4]].asString();
+            struct tm stm;
+            memset(&stm,0,sizeof(stm));
+            auto p = strptime(timeStr.c_str(),"%Y-%m-%d %H:%M:%S",&stm);
+            time_t t = mktime(&stm);
+            size_t decimalNum = 0;
+            if(p)
+            {
+                if(*p=='.')
+                {
+                    std::string decimals(p+1,&timeStr[timeStr.length()]);
+                    while(decimals.length()<6)
+                    {
+                        decimals += "0";
+                    }
+                    decimalNum = (size_t)atol(decimals.c_str());
+                }
+                createdat_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
+            }
         }
     }
     if(!pMasqueradingVector[5].empty() && pJson.isMember(pMasqueradingVector[5]))
@@ -511,7 +533,7 @@ void Assignment::updateByMasqueradedJson(const Json::Value &pJson,
                     }
                     decimalNum = (size_t)atol(decimals.c_str());
                 }
-                createdat_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
+                updatedat_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
             }
         }
     }
@@ -520,25 +542,7 @@ void Assignment::updateByMasqueradedJson(const Json::Value &pJson,
         dirtyFlag_[6] = true;
         if(!pJson[pMasqueradingVector[6]].isNull())
         {
-            auto timeStr = pJson[pMasqueradingVector[6]].asString();
-            struct tm stm;
-            memset(&stm,0,sizeof(stm));
-            auto p = strptime(timeStr.c_str(),"%Y-%m-%d %H:%M:%S",&stm);
-            time_t t = mktime(&stm);
-            size_t decimalNum = 0;
-            if(p)
-            {
-                if(*p=='.')
-                {
-                    std::string decimals(p+1,&timeStr[timeStr.length()]);
-                    while(decimals.length()<6)
-                    {
-                        decimals += "0";
-                    }
-                    decimalNum = (size_t)atol(decimals.c_str());
-                }
-                updatedat_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
-            }
+            gradeid_=std::make_shared<std::string>(pJson[pMasqueradingVector[6]].asString());
         }
     }
     if(!pMasqueradingVector[7].empty() && pJson.isMember(pMasqueradingVector[7]))
@@ -584,17 +588,9 @@ void Assignment::updateByJson(const Json::Value &pJson) noexcept(false)
             content_=std::make_shared<std::string>(pJson["Content"].asString());
         }
     }
-    if(pJson.isMember("Grade"))
-    {
-        dirtyFlag_[3] = true;
-        if(!pJson["Grade"].isNull())
-        {
-            grade_=std::make_shared<std::string>(pJson["Grade"].asString());
-        }
-    }
     if(pJson.isMember("Description"))
     {
-        dirtyFlag_[4] = true;
+        dirtyFlag_[3] = true;
         if(!pJson["Description"].isNull())
         {
             description_=std::make_shared<std::string>(pJson["Description"].asString());
@@ -602,7 +598,7 @@ void Assignment::updateByJson(const Json::Value &pJson) noexcept(false)
     }
     if(pJson.isMember("CreatedAt"))
     {
-        dirtyFlag_[5] = true;
+        dirtyFlag_[4] = true;
         if(!pJson["CreatedAt"].isNull())
         {
             auto timeStr = pJson["CreatedAt"].asString();
@@ -628,7 +624,7 @@ void Assignment::updateByJson(const Json::Value &pJson) noexcept(false)
     }
     if(pJson.isMember("UpdatedAt"))
     {
-        dirtyFlag_[6] = true;
+        dirtyFlag_[5] = true;
         if(!pJson["UpdatedAt"].isNull())
         {
             auto timeStr = pJson["UpdatedAt"].asString();
@@ -650,6 +646,14 @@ void Assignment::updateByJson(const Json::Value &pJson) noexcept(false)
                 }
                 updatedat_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
             }
+        }
+    }
+    if(pJson.isMember("GradeId"))
+    {
+        dirtyFlag_[6] = true;
+        if(!pJson["GradeId"].isNull())
+        {
+            gradeid_=std::make_shared<std::string>(pJson["GradeId"].asString());
         }
     }
     if(pJson.isMember("CategoryId"))
@@ -746,33 +750,6 @@ void Assignment::setContentToNull() noexcept
     dirtyFlag_[2] = true;
 }
 
-const std::string &Assignment::getValueOfGrade() const noexcept
-{
-    static const std::string defaultValue = std::string();
-    if(grade_)
-        return *grade_;
-    return defaultValue;
-}
-const std::shared_ptr<std::string> &Assignment::getGrade() const noexcept
-{
-    return grade_;
-}
-void Assignment::setGrade(const std::string &pGrade) noexcept
-{
-    grade_ = std::make_shared<std::string>(pGrade);
-    dirtyFlag_[3] = true;
-}
-void Assignment::setGrade(std::string &&pGrade) noexcept
-{
-    grade_ = std::make_shared<std::string>(std::move(pGrade));
-    dirtyFlag_[3] = true;
-}
-void Assignment::setGradeToNull() noexcept
-{
-    grade_.reset();
-    dirtyFlag_[3] = true;
-}
-
 const std::string &Assignment::getValueOfDescription() const noexcept
 {
     static const std::string defaultValue = std::string();
@@ -787,17 +764,17 @@ const std::shared_ptr<std::string> &Assignment::getDescription() const noexcept
 void Assignment::setDescription(const std::string &pDescription) noexcept
 {
     description_ = std::make_shared<std::string>(pDescription);
-    dirtyFlag_[4] = true;
+    dirtyFlag_[3] = true;
 }
 void Assignment::setDescription(std::string &&pDescription) noexcept
 {
     description_ = std::make_shared<std::string>(std::move(pDescription));
-    dirtyFlag_[4] = true;
+    dirtyFlag_[3] = true;
 }
 void Assignment::setDescriptionToNull() noexcept
 {
     description_.reset();
-    dirtyFlag_[4] = true;
+    dirtyFlag_[3] = true;
 }
 
 const ::trantor::Date &Assignment::getValueOfCreatedat() const noexcept
@@ -814,12 +791,12 @@ const std::shared_ptr<::trantor::Date> &Assignment::getCreatedat() const noexcep
 void Assignment::setCreatedat(const ::trantor::Date &pCreatedat) noexcept
 {
     createdat_ = std::make_shared<::trantor::Date>(pCreatedat);
-    dirtyFlag_[5] = true;
+    dirtyFlag_[4] = true;
 }
 void Assignment::setCreatedatToNull() noexcept
 {
     createdat_.reset();
-    dirtyFlag_[5] = true;
+    dirtyFlag_[4] = true;
 }
 
 const ::trantor::Date &Assignment::getValueOfUpdatedat() const noexcept
@@ -836,11 +813,38 @@ const std::shared_ptr<::trantor::Date> &Assignment::getUpdatedat() const noexcep
 void Assignment::setUpdatedat(const ::trantor::Date &pUpdatedat) noexcept
 {
     updatedat_ = std::make_shared<::trantor::Date>(pUpdatedat);
-    dirtyFlag_[6] = true;
+    dirtyFlag_[5] = true;
 }
 void Assignment::setUpdatedatToNull() noexcept
 {
     updatedat_.reset();
+    dirtyFlag_[5] = true;
+}
+
+const std::string &Assignment::getValueOfGradeid() const noexcept
+{
+    static const std::string defaultValue = std::string();
+    if(gradeid_)
+        return *gradeid_;
+    return defaultValue;
+}
+const std::shared_ptr<std::string> &Assignment::getGradeid() const noexcept
+{
+    return gradeid_;
+}
+void Assignment::setGradeid(const std::string &pGradeid) noexcept
+{
+    gradeid_ = std::make_shared<std::string>(pGradeid);
+    dirtyFlag_[6] = true;
+}
+void Assignment::setGradeid(std::string &&pGradeid) noexcept
+{
+    gradeid_ = std::make_shared<std::string>(std::move(pGradeid));
+    dirtyFlag_[6] = true;
+}
+void Assignment::setGradeidToNull() noexcept
+{
+    gradeid_.reset();
     dirtyFlag_[6] = true;
 }
 
@@ -908,10 +912,10 @@ const std::vector<std::string> &Assignment::insertColumns() noexcept
         "Id",
         "Name",
         "Content",
-        "Grade",
         "Description",
         "CreatedAt",
         "UpdatedAt",
+        "GradeId",
         "CategoryId",
         "ProfessionId"
     };
@@ -955,17 +959,6 @@ void Assignment::outputArgs(drogon::orm::internal::SqlBinder &binder) const
     }
     if(dirtyFlag_[3])
     {
-        if(getGrade())
-        {
-            binder << getValueOfGrade();
-        }
-        else
-        {
-            binder << nullptr;
-        }
-    }
-    if(dirtyFlag_[4])
-    {
         if(getDescription())
         {
             binder << getValueOfDescription();
@@ -975,7 +968,7 @@ void Assignment::outputArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
-    if(dirtyFlag_[5])
+    if(dirtyFlag_[4])
     {
         if(getCreatedat())
         {
@@ -986,11 +979,22 @@ void Assignment::outputArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
-    if(dirtyFlag_[6])
+    if(dirtyFlag_[5])
     {
         if(getUpdatedat())
         {
             binder << getValueOfUpdatedat();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
+    if(dirtyFlag_[6])
+    {
+        if(getGradeid())
+        {
+            binder << getValueOfGradeid();
         }
         else
         {
@@ -1100,17 +1104,6 @@ void Assignment::updateArgs(drogon::orm::internal::SqlBinder &binder) const
     }
     if(dirtyFlag_[3])
     {
-        if(getGrade())
-        {
-            binder << getValueOfGrade();
-        }
-        else
-        {
-            binder << nullptr;
-        }
-    }
-    if(dirtyFlag_[4])
-    {
         if(getDescription())
         {
             binder << getValueOfDescription();
@@ -1120,7 +1113,7 @@ void Assignment::updateArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
-    if(dirtyFlag_[5])
+    if(dirtyFlag_[4])
     {
         if(getCreatedat())
         {
@@ -1131,11 +1124,22 @@ void Assignment::updateArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
-    if(dirtyFlag_[6])
+    if(dirtyFlag_[5])
     {
         if(getUpdatedat())
         {
             binder << getValueOfUpdatedat();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
+    if(dirtyFlag_[6])
+    {
+        if(getGradeid())
+        {
+            binder << getValueOfGradeid();
         }
         else
         {
@@ -1192,14 +1196,6 @@ Json::Value Assignment::toJson() const
     {
         ret["Content"]=Json::Value();
     }
-    if(getGrade())
-    {
-        ret["Grade"]=getValueOfGrade();
-    }
-    else
-    {
-        ret["Grade"]=Json::Value();
-    }
     if(getDescription())
     {
         ret["Description"]=getValueOfDescription();
@@ -1223,6 +1219,14 @@ Json::Value Assignment::toJson() const
     else
     {
         ret["UpdatedAt"]=Json::Value();
+    }
+    if(getGradeid())
+    {
+        ret["GradeId"]=getValueOfGradeid();
+    }
+    else
+    {
+        ret["GradeId"]=Json::Value();
     }
     if(getCategoryid())
     {
@@ -1284,9 +1288,9 @@ Json::Value Assignment::toMasqueradedJson(
         }
         if(!pMasqueradingVector[3].empty())
         {
-            if(getGrade())
+            if(getDescription())
             {
-                ret[pMasqueradingVector[3]]=getValueOfGrade();
+                ret[pMasqueradingVector[3]]=getValueOfDescription();
             }
             else
             {
@@ -1295,9 +1299,9 @@ Json::Value Assignment::toMasqueradedJson(
         }
         if(!pMasqueradingVector[4].empty())
         {
-            if(getDescription())
+            if(getCreatedat())
             {
-                ret[pMasqueradingVector[4]]=getValueOfDescription();
+                ret[pMasqueradingVector[4]]=getCreatedat()->toDbStringLocal();
             }
             else
             {
@@ -1306,9 +1310,9 @@ Json::Value Assignment::toMasqueradedJson(
         }
         if(!pMasqueradingVector[5].empty())
         {
-            if(getCreatedat())
+            if(getUpdatedat())
             {
-                ret[pMasqueradingVector[5]]=getCreatedat()->toDbStringLocal();
+                ret[pMasqueradingVector[5]]=getUpdatedat()->toDbStringLocal();
             }
             else
             {
@@ -1317,9 +1321,9 @@ Json::Value Assignment::toMasqueradedJson(
         }
         if(!pMasqueradingVector[6].empty())
         {
-            if(getUpdatedat())
+            if(getGradeid())
             {
-                ret[pMasqueradingVector[6]]=getUpdatedat()->toDbStringLocal();
+                ret[pMasqueradingVector[6]]=getValueOfGradeid();
             }
             else
             {
@@ -1375,14 +1379,6 @@ Json::Value Assignment::toMasqueradedJson(
     {
         ret["Content"]=Json::Value();
     }
-    if(getGrade())
-    {
-        ret["Grade"]=getValueOfGrade();
-    }
-    else
-    {
-        ret["Grade"]=Json::Value();
-    }
     if(getDescription())
     {
         ret["Description"]=getValueOfDescription();
@@ -1406,6 +1402,14 @@ Json::Value Assignment::toMasqueradedJson(
     else
     {
         ret["UpdatedAt"]=Json::Value();
+    }
+    if(getGradeid())
+    {
+        ret["GradeId"]=getValueOfGradeid();
+    }
+    else
+    {
+        ret["GradeId"]=Json::Value();
     }
     if(getCategoryid())
     {
@@ -1448,24 +1452,24 @@ bool Assignment::validateJsonForCreation(const Json::Value &pJson, std::string &
         if(!validJsonOfField(2, "Content", pJson["Content"], err, true))
             return false;
     }
-    if(pJson.isMember("Grade"))
-    {
-        if(!validJsonOfField(3, "Grade", pJson["Grade"], err, true))
-            return false;
-    }
     if(pJson.isMember("Description"))
     {
-        if(!validJsonOfField(4, "Description", pJson["Description"], err, true))
+        if(!validJsonOfField(3, "Description", pJson["Description"], err, true))
             return false;
     }
     if(pJson.isMember("CreatedAt"))
     {
-        if(!validJsonOfField(5, "CreatedAt", pJson["CreatedAt"], err, true))
+        if(!validJsonOfField(4, "CreatedAt", pJson["CreatedAt"], err, true))
             return false;
     }
     if(pJson.isMember("UpdatedAt"))
     {
-        if(!validJsonOfField(6, "UpdatedAt", pJson["UpdatedAt"], err, true))
+        if(!validJsonOfField(5, "UpdatedAt", pJson["UpdatedAt"], err, true))
+            return false;
+    }
+    if(pJson.isMember("GradeId"))
+    {
+        if(!validJsonOfField(6, "GradeId", pJson["GradeId"], err, true))
             return false;
     }
     if(pJson.isMember("CategoryId"))
@@ -1597,24 +1601,24 @@ bool Assignment::validateJsonForUpdate(const Json::Value &pJson, std::string &er
         if(!validJsonOfField(2, "Content", pJson["Content"], err, false))
             return false;
     }
-    if(pJson.isMember("Grade"))
-    {
-        if(!validJsonOfField(3, "Grade", pJson["Grade"], err, false))
-            return false;
-    }
     if(pJson.isMember("Description"))
     {
-        if(!validJsonOfField(4, "Description", pJson["Description"], err, false))
+        if(!validJsonOfField(3, "Description", pJson["Description"], err, false))
             return false;
     }
     if(pJson.isMember("CreatedAt"))
     {
-        if(!validJsonOfField(5, "CreatedAt", pJson["CreatedAt"], err, false))
+        if(!validJsonOfField(4, "CreatedAt", pJson["CreatedAt"], err, false))
             return false;
     }
     if(pJson.isMember("UpdatedAt"))
     {
-        if(!validJsonOfField(6, "UpdatedAt", pJson["UpdatedAt"], err, false))
+        if(!validJsonOfField(5, "UpdatedAt", pJson["UpdatedAt"], err, false))
+            return false;
+    }
+    if(pJson.isMember("GradeId"))
+    {
+        if(!validJsonOfField(6, "GradeId", pJson["GradeId"], err, false))
             return false;
     }
     if(pJson.isMember("CategoryId"))
@@ -1811,4 +1815,176 @@ bool Assignment::validJsonOfField(size_t index,
             return false;
     }
     return true;
+}
+Teacherassignment Assignment::getTeacherassignment(const DbClientPtr &clientPtr) const {
+    static const std::string sql = "select * from TeacherAssignment where AssignmentId = $1";
+    Result r(nullptr);
+    {
+        auto binder = *clientPtr << sql;
+        binder << *id_ << Mode::Blocking >>
+            [&r](const Result &result) { r = result; };
+        binder.exec();
+    }
+    if (r.size() == 0)
+    {
+        throw UnexpectedRows("0 rows found");
+    }
+    else if (r.size() > 1)
+    {
+        throw UnexpectedRows("Found more than one row");
+    }
+    return Teacherassignment(r[0]);
+}
+
+void Assignment::getTeacherassignment(const DbClientPtr &clientPtr,
+                                      const std::function<void(Teacherassignment)> &rcb,
+                                      const ExceptionCallback &ecb) const
+{
+    static const std::string sql = "select * from TeacherAssignment where AssignmentId = $1";
+    *clientPtr << sql
+               << *id_
+               >> [rcb = std::move(rcb), ecb](const Result &r){
+                    if (r.size() == 0)
+                    {
+                        ecb(UnexpectedRows("0 rows found"));
+                    }
+                    else if (r.size() > 1)
+                    {
+                        ecb(UnexpectedRows("Found more than one row"));
+                    }
+                    else
+                    {
+                        rcb(Teacherassignment(r[0]));
+                    }
+               }
+               >> ecb;
+}
+Grade Assignment::getGrade(const DbClientPtr &clientPtr) const {
+    static const std::string sql = "select * from Grade where Id = $1";
+    Result r(nullptr);
+    {
+        auto binder = *clientPtr << sql;
+        binder << *gradeid_ << Mode::Blocking >>
+            [&r](const Result &result) { r = result; };
+        binder.exec();
+    }
+    if (r.size() == 0)
+    {
+        throw UnexpectedRows("0 rows found");
+    }
+    else if (r.size() > 1)
+    {
+        throw UnexpectedRows("Found more than one row");
+    }
+    return Grade(r[0]);
+}
+
+void Assignment::getGrade(const DbClientPtr &clientPtr,
+                          const std::function<void(Grade)> &rcb,
+                          const ExceptionCallback &ecb) const
+{
+    static const std::string sql = "select * from Grade where Id = $1";
+    *clientPtr << sql
+               << *gradeid_
+               >> [rcb = std::move(rcb), ecb](const Result &r){
+                    if (r.size() == 0)
+                    {
+                        ecb(UnexpectedRows("0 rows found"));
+                    }
+                    else if (r.size() > 1)
+                    {
+                        ecb(UnexpectedRows("Found more than one row"));
+                    }
+                    else
+                    {
+                        rcb(Grade(r[0]));
+                    }
+               }
+               >> ecb;
+}
+Category Assignment::getCategory(const DbClientPtr &clientPtr) const {
+    static const std::string sql = "select * from Category where Id = $1";
+    Result r(nullptr);
+    {
+        auto binder = *clientPtr << sql;
+        binder << *categoryid_ << Mode::Blocking >>
+            [&r](const Result &result) { r = result; };
+        binder.exec();
+    }
+    if (r.size() == 0)
+    {
+        throw UnexpectedRows("0 rows found");
+    }
+    else if (r.size() > 1)
+    {
+        throw UnexpectedRows("Found more than one row");
+    }
+    return Category(r[0]);
+}
+
+void Assignment::getCategory(const DbClientPtr &clientPtr,
+                             const std::function<void(Category)> &rcb,
+                             const ExceptionCallback &ecb) const
+{
+    static const std::string sql = "select * from Category where Id = $1";
+    *clientPtr << sql
+               << *categoryid_
+               >> [rcb = std::move(rcb), ecb](const Result &r){
+                    if (r.size() == 0)
+                    {
+                        ecb(UnexpectedRows("0 rows found"));
+                    }
+                    else if (r.size() > 1)
+                    {
+                        ecb(UnexpectedRows("Found more than one row"));
+                    }
+                    else
+                    {
+                        rcb(Category(r[0]));
+                    }
+               }
+               >> ecb;
+}
+Profession Assignment::getProfession(const DbClientPtr &clientPtr) const {
+    static const std::string sql = "select * from Profession where Id = $1";
+    Result r(nullptr);
+    {
+        auto binder = *clientPtr << sql;
+        binder << *professionid_ << Mode::Blocking >>
+            [&r](const Result &result) { r = result; };
+        binder.exec();
+    }
+    if (r.size() == 0)
+    {
+        throw UnexpectedRows("0 rows found");
+    }
+    else if (r.size() > 1)
+    {
+        throw UnexpectedRows("Found more than one row");
+    }
+    return Profession(r[0]);
+}
+
+void Assignment::getProfession(const DbClientPtr &clientPtr,
+                               const std::function<void(Profession)> &rcb,
+                               const ExceptionCallback &ecb) const
+{
+    static const std::string sql = "select * from Profession where Id = $1";
+    *clientPtr << sql
+               << *professionid_
+               >> [rcb = std::move(rcb), ecb](const Result &r){
+                    if (r.size() == 0)
+                    {
+                        ecb(UnexpectedRows("0 rows found"));
+                    }
+                    else if (r.size() > 1)
+                    {
+                        ecb(UnexpectedRows("Found more than one row"));
+                    }
+                    else
+                    {
+                        rcb(Profession(r[0]));
+                    }
+               }
+               >> ecb;
 }

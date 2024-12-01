@@ -6,6 +6,9 @@
  */
 
 #include "Teacher.h"
+#include "Teacherassignment.h"
+#include "Teachersubject.h"
+#include "Teacheruser.h"
 #include <drogon/utils/Utilities.h>
 #include <string>
 
@@ -21,7 +24,7 @@ const std::string Teacher::tableName = "\"Teacher\"";
 
 const std::vector<typename Teacher::MetaData> Teacher::metaData_={
 {"Id","std::string","uuid",0,0,1,1},
-{"Name","std::string","character varying",0,0,0,1}
+{"Name","std::string","text",0,0,0,1}
 };
 const std::string &Teacher::getColumnName(size_t index) noexcept(false)
 {
@@ -499,4 +502,119 @@ bool Teacher::validJsonOfField(size_t index,
             return false;
     }
     return true;
+}
+Teacheruser Teacher::getTeacheruser(const DbClientPtr &clientPtr) const {
+    static const std::string sql = "select * from TeacherUser where TeacherId  = $1";
+    Result r(nullptr);
+    {
+        auto binder = *clientPtr << sql;
+        binder << *id_ << Mode::Blocking >>
+            [&r](const Result &result) { r = result; };
+        binder.exec();
+    }
+    if (r.size() == 0)
+    {
+        throw UnexpectedRows("0 rows found");
+    }
+    else if (r.size() > 1)
+    {
+        throw UnexpectedRows("Found more than one row");
+    }
+    return Teacheruser(r[0]);
+}
+
+void Teacher::getTeacheruser(const DbClientPtr &clientPtr,
+                             const std::function<void(Teacheruser)> &rcb,
+                             const ExceptionCallback &ecb) const
+{
+    static const std::string sql = "select * from TeacherUser where TeacherId  = $1";
+    *clientPtr << sql
+               << *id_
+               >> [rcb = std::move(rcb), ecb](const Result &r){
+                    if (r.size() == 0)
+                    {
+                        ecb(UnexpectedRows("0 rows found"));
+                    }
+                    else if (r.size() > 1)
+                    {
+                        ecb(UnexpectedRows("Found more than one row"));
+                    }
+                    else
+                    {
+                        rcb(Teacheruser(r[0]));
+                    }
+               }
+               >> ecb;
+}
+std::vector<Teacherassignment> Teacher::getTeacherassignment(const DbClientPtr &clientPtr) const {
+    static const std::string sql = "select * from TeacherAssignment where TeacherId = $1";
+    Result r(nullptr);
+    {
+        auto binder = *clientPtr << sql;
+        binder << *id_ << Mode::Blocking >>
+            [&r](const Result &result) { r = result; };
+        binder.exec();
+    }
+    std::vector<Teacherassignment> ret;
+    ret.reserve(r.size());
+    for (auto const &row : r)
+    {
+        ret.emplace_back(Teacherassignment(row));
+    }
+    return ret;
+}
+
+void Teacher::getTeacherassignment(const DbClientPtr &clientPtr,
+                                   const std::function<void(std::vector<Teacherassignment>)> &rcb,
+                                   const ExceptionCallback &ecb) const
+{
+    static const std::string sql = "select * from TeacherAssignment where TeacherId = $1";
+    *clientPtr << sql
+               << *id_
+               >> [rcb = std::move(rcb)](const Result &r){
+                   std::vector<Teacherassignment> ret;
+                   ret.reserve(r.size());
+                   for (auto const &row : r)
+                   {
+                       ret.emplace_back(Teacherassignment(row));
+                   }
+                   rcb(ret);
+               }
+               >> ecb;
+}
+std::vector<Teachersubject> Teacher::getTeachersubject(const DbClientPtr &clientPtr) const {
+    static const std::string sql = "select * from TeacherSubject where TeacherId = $1";
+    Result r(nullptr);
+    {
+        auto binder = *clientPtr << sql;
+        binder << *id_ << Mode::Blocking >>
+            [&r](const Result &result) { r = result; };
+        binder.exec();
+    }
+    std::vector<Teachersubject> ret;
+    ret.reserve(r.size());
+    for (auto const &row : r)
+    {
+        ret.emplace_back(Teachersubject(row));
+    }
+    return ret;
+}
+
+void Teacher::getTeachersubject(const DbClientPtr &clientPtr,
+                                const std::function<void(std::vector<Teachersubject>)> &rcb,
+                                const ExceptionCallback &ecb) const
+{
+    static const std::string sql = "select * from TeacherSubject where TeacherId = $1";
+    *clientPtr << sql
+               << *id_
+               >> [rcb = std::move(rcb)](const Result &r){
+                   std::vector<Teachersubject> ret;
+                   ret.reserve(r.size());
+                   for (auto const &row : r)
+                   {
+                       ret.emplace_back(Teachersubject(row));
+                   }
+                   rcb(ret);
+               }
+               >> ecb;
 }

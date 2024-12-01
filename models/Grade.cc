@@ -6,6 +6,8 @@
  */
 
 #include "Grade.h"
+#include "Assignment.h"
+#include "Subject.h"
 #include <drogon/utils/Utilities.h>
 #include <string>
 
@@ -21,7 +23,7 @@ const std::string Grade::tableName = "\"Grade\"";
 
 const std::vector<typename Grade::MetaData> Grade::metaData_={
 {"Id","std::string","uuid",0,0,1,1},
-{"GradeName","std::string","character varying",0,0,0,1}
+{"GradeName","std::string","text",0,0,0,1}
 };
 const std::string &Grade::getColumnName(size_t index) noexcept(false)
 {
@@ -499,4 +501,76 @@ bool Grade::validJsonOfField(size_t index,
             return false;
     }
     return true;
+}
+std::vector<Subject> Grade::getSubject(const DbClientPtr &clientPtr) const {
+    static const std::string sql = "select * from Subject where GradeId = $1";
+    Result r(nullptr);
+    {
+        auto binder = *clientPtr << sql;
+        binder << *id_ << Mode::Blocking >>
+            [&r](const Result &result) { r = result; };
+        binder.exec();
+    }
+    std::vector<Subject> ret;
+    ret.reserve(r.size());
+    for (auto const &row : r)
+    {
+        ret.emplace_back(Subject(row));
+    }
+    return ret;
+}
+
+void Grade::getSubject(const DbClientPtr &clientPtr,
+                       const std::function<void(std::vector<Subject>)> &rcb,
+                       const ExceptionCallback &ecb) const
+{
+    static const std::string sql = "select * from Subject where GradeId = $1";
+    *clientPtr << sql
+               << *id_
+               >> [rcb = std::move(rcb)](const Result &r){
+                   std::vector<Subject> ret;
+                   ret.reserve(r.size());
+                   for (auto const &row : r)
+                   {
+                       ret.emplace_back(Subject(row));
+                   }
+                   rcb(ret);
+               }
+               >> ecb;
+}
+std::vector<Assignment> Grade::getAssignment(const DbClientPtr &clientPtr) const {
+    static const std::string sql = "select * from Assignment where GradeId = $1";
+    Result r(nullptr);
+    {
+        auto binder = *clientPtr << sql;
+        binder << *id_ << Mode::Blocking >>
+            [&r](const Result &result) { r = result; };
+        binder.exec();
+    }
+    std::vector<Assignment> ret;
+    ret.reserve(r.size());
+    for (auto const &row : r)
+    {
+        ret.emplace_back(Assignment(row));
+    }
+    return ret;
+}
+
+void Grade::getAssignment(const DbClientPtr &clientPtr,
+                          const std::function<void(std::vector<Assignment>)> &rcb,
+                          const ExceptionCallback &ecb) const
+{
+    static const std::string sql = "select * from Assignment where GradeId = $1";
+    *clientPtr << sql
+               << *id_
+               >> [rcb = std::move(rcb)](const Result &r){
+                   std::vector<Assignment> ret;
+                   ret.reserve(r.size());
+                   for (auto const &row : r)
+                   {
+                       ret.emplace_back(Assignment(row));
+                   }
+                   rcb(ret);
+               }
+               >> ecb;
 }

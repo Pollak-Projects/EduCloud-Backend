@@ -6,6 +6,7 @@
  */
 
 #include "Userdata.h"
+#include "User.h"
 #include <drogon/utils/Utilities.h>
 #include <string>
 
@@ -22,7 +23,7 @@ const std::string Userdata::tableName = "\"UserData\"";
 
 const std::vector<typename Userdata::MetaData> Userdata::metaData_={
 {"UserId","std::string","uuid",0,0,1,1},
-{"Email","std::string","character varying",0,0,0,0},
+{"Email","std::string","text",0,0,0,0},
 {"BirthDate","::trantor::Date","timestamp without time zone",0,0,0,1}
 };
 const std::string &Userdata::getColumnName(size_t index) noexcept(false)
@@ -760,4 +761,47 @@ bool Userdata::validJsonOfField(size_t index,
             return false;
     }
     return true;
+}
+User Userdata::getUser(const DbClientPtr &clientPtr) const {
+    static const std::string sql = "select * from User where Id = $1";
+    Result r(nullptr);
+    {
+        auto binder = *clientPtr << sql;
+        binder << *userid_ << Mode::Blocking >>
+            [&r](const Result &result) { r = result; };
+        binder.exec();
+    }
+    if (r.size() == 0)
+    {
+        throw UnexpectedRows("0 rows found");
+    }
+    else if (r.size() > 1)
+    {
+        throw UnexpectedRows("Found more than one row");
+    }
+    return User(r[0]);
+}
+
+void Userdata::getUser(const DbClientPtr &clientPtr,
+                       const std::function<void(User)> &rcb,
+                       const ExceptionCallback &ecb) const
+{
+    static const std::string sql = "select * from User where Id = $1";
+    *clientPtr << sql
+               << *userid_
+               >> [rcb = std::move(rcb), ecb](const Result &r){
+                    if (r.size() == 0)
+                    {
+                        ecb(UnexpectedRows("0 rows found"));
+                    }
+                    else if (r.size() > 1)
+                    {
+                        ecb(UnexpectedRows("Found more than one row"));
+                    }
+                    else
+                    {
+                        rcb(User(r[0]));
+                    }
+               }
+               >> ecb;
 }
