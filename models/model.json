@@ -1,10 +1,13 @@
 {
     "rdbms": "postgresql",
     "host": "127.0.0.1",
-    "port": 3306,
+    "port": 5432,
     "dbname": "educloud",
     "schema": "public",
-    "user": "root",
-    "password": "",
-    "tables": []
+    "user": "postgres",
+    "password": "pw",
+    "tables": [],
+    "connect_options" : {
+        "ssl_mode" : "DISABLED"
+    }
 }
