@@ -5,6 +5,13 @@
 
 ### Installation
 
+> Important:  
+> THIS IS OUTDATED, PLEASE REFER TO THE NEW INSTALLATION GUIDE
+
+The new guide is under construction
+
+> The following is here for reference
+
 1. Install visual studio 2022 with C++ development tools for desktop
 
 2. Install vcpkg in a different directory than the project directory
