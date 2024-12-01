@@ -15,7 +15,8 @@
     "jsoncpp",
     "yaml-cpp",
     "zlib",
-    "libmariadb"
+    "libmariadb",
+    "libpq"
   ],
   "features": {},
   "overrides": []

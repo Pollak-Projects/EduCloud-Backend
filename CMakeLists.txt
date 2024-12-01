@@ -4,6 +4,8 @@ project(EduCloud-Backend CXX)
 
 set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
 
+find_package(PostgreSQL REQUIRED)
+
 include(CheckIncludeFileCXX)
 
 check_include_file_cxx(any HAS_ANY)
@@ -28,7 +30,10 @@ add_executable(${PROJECT_NAME} main.cc)
 # If you include the drogon source code locally in your project, use this method
 # to add drogon
 add_subdirectory(drogon)
+
 target_link_libraries(${PROJECT_NAME} PRIVATE drogon)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE PostgreSQL::PostgreSQL drogon)
 #
 # and comment out the following lines
 #find_package(yaml-cpp CONFIG REQUIRED)
