@@ -567,7 +567,7 @@ Teacher Teacheruser::getTeacher(const DbClientPtr &clientPtr) const {
     Result r(nullptr);
     {
         auto binder = *clientPtr << sql;
-        binder << *teacherid _ << Mode::Blocking >>
+        binder << *teacherid_ << Mode::Blocking >>
             [&r](const Result &result) { r = result; };
         binder.exec();
     }
@@ -588,7 +588,7 @@ void Teacheruser::getTeacher(const DbClientPtr &clientPtr,
 {
     static const std::string sql = "select * from Teacher where Id = $1";
     *clientPtr << sql
-               << *teacherid _
+               << *teacherid_
                >> [rcb = std::move(rcb), ecb](const Result &r){
                     if (r.size() == 0)
                     {
