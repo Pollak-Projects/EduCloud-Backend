@@ -13,10 +13,19 @@
   "default-features": [],
   "dependencies": [
     "jsoncpp",
-    "yaml-cpp",
     "zlib",
-    "libmariadb",
-    "libpq"
+    "gtest",
+    "sqlite3",
+    "openssl",
+    "hiredis",
+    "brotli",
+    "jsoncpp",
+    "yaml-cpp",
+    "c-ares",
+    {
+      "name" : "libpq",
+      "version>=" : "16.4"
+    }
   ],
   "features": {},
   "overrides": []
