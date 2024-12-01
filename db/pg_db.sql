@@ -1,103 +1,103 @@
+-- Enable UUID extension for PostgreSQL
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Users Table
+-- User table
 CREATE TABLE "User" (
                         "Id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-                        "Username" VARCHAR NOT NULL,
-                        "HashedPwd" VARCHAR NOT NULL,
-                        "DisplayName" VARCHAR NOT NULL,
+                        "Username" TEXT NOT NULL,
+                        "HashedPwd" TEXT NOT NULL,
+                        "DisplayName" TEXT NOT NULL,
                         "Created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         "Updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- UserData Table
+-- UserData table
 CREATE TABLE "UserData" (
                             "UserId" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-                            "Email" VARCHAR,
+                            "Email" TEXT,
                             "BirthDate" TIMESTAMP NOT NULL,
-                            FOREIGN KEY ("UserId") REFERENCES "User"("Id") ON DELETE CASCADE
+                            CONSTRAINT "FK_UserData_User" FOREIGN KEY ("UserId") REFERENCES "User" ("Id") ON DELETE CASCADE
 );
 
--- Category Table
+-- Teacher table
+CREATE TABLE "Teacher" (
+                           "Id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+                           "Name" TEXT NOT NULL
+);
+
+-- TeacherUser table
+CREATE TABLE "TeacherUser" (
+                               "TeacherId" UUID NOT NULL,
+                               "UserId" UUID NOT NULL,
+                               PRIMARY KEY ("UserId", "TeacherId"),
+                               CONSTRAINT "FK_TeacherUser_Teacher" FOREIGN KEY ("TeacherId") REFERENCES "Teacher" ("Id") ON DELETE CASCADE,
+                               CONSTRAINT "FK_TeacherUser_User" FOREIGN KEY ("UserId") REFERENCES "User" ("Id") ON DELETE CASCADE
+);
+
+-- Grade table
+CREATE TABLE "Grade" (
+                         "Id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+                         "GradeName" TEXT UNIQUE NOT NULL
+);
+
+-- Category table
 CREATE TABLE "Category" (
                             "Id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-                            "CategoryName" VARCHAR UNIQUE NOT NULL
+                            "CategoryName" TEXT UNIQUE NOT NULL
 );
 
--- Profession Table
+-- Profession table
 CREATE TABLE "Profession" (
                               "Id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-                              "ProfessionName" VARCHAR UNIQUE NOT NULL
+                              "ProfessionName" TEXT UNIQUE NOT NULL
 );
 
--- Subject Table
+-- Subject table
 CREATE TABLE "Subject" (
                            "Id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-                           "Name" VARCHAR NOT NULL,
+                           "Name" TEXT NOT NULL,
                            "Content" TEXT,
-                           "Grade" VARCHAR,
                            "Description" TEXT,
                            "CreatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                            "UpdatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                           "GradeId" UUID,
                            "CategoryId" UUID,
                            "ProfessionId" UUID,
-                           FOREIGN KEY ("CategoryId") REFERENCES "Category"("Id") ON DELETE CASCADE,
-                           FOREIGN KEY ("ProfessionId") REFERENCES "Profession"("Id") ON DELETE CASCADE
+                           CONSTRAINT "FK_Subject_Grade" FOREIGN KEY ("GradeId") REFERENCES "Grade" ("Id") ON DELETE CASCADE,
+                           CONSTRAINT "FK_Subject_Category" FOREIGN KEY ("CategoryId") REFERENCES "Category" ("Id") ON DELETE CASCADE,
+                           CONSTRAINT "FK_Subject_Profession" FOREIGN KEY ("ProfessionId") REFERENCES "Profession" ("Id") ON DELETE CASCADE
 );
 
--- Assignment Table
+-- Assignment table
 CREATE TABLE "Assignment" (
                               "Id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-                              "Name" VARCHAR NOT NULL,
+                              "Name" TEXT NOT NULL,
                               "Content" TEXT,
-                              "Grade" VARCHAR,
                               "Description" TEXT,
                               "CreatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                               "UpdatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                              "GradeId" UUID,
                               "CategoryId" UUID,
                               "ProfessionId" UUID,
-                              FOREIGN KEY ("CategoryId") REFERENCES "Category"("Id") ON DELETE CASCADE,
-                              FOREIGN KEY ("ProfessionId") REFERENCES "Profession"("Id") ON DELETE CASCADE
+                              CONSTRAINT "FK_Assignment_Grade" FOREIGN KEY ("GradeId") REFERENCES "Grade" ("Id") ON DELETE CASCADE,
+                              CONSTRAINT "FK_Assignment_Category" FOREIGN KEY ("CategoryId") REFERENCES "Category" ("Id") ON DELETE CASCADE,
+                              CONSTRAINT "FK_Assignment_Profession" FOREIGN KEY ("ProfessionId") REFERENCES "Profession" ("Id") ON DELETE CASCADE
 );
 
--- Teacher Table
-CREATE TABLE "Teacher" (
-                           "Id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-                           "Name" VARCHAR NOT NULL
-);
-
--- TeacherSubject Table (Many-to-Many relationship between Teacher and Subject)
+-- TeacherSubject table
 CREATE TABLE "TeacherSubject" (
-                                  "TeacherId" UUID,
-                                  "SubjectId" UUID,
+                                  "TeacherId" UUID NOT NULL,
+                                  "SubjectId" UUID NOT NULL,
                                   PRIMARY KEY ("TeacherId", "SubjectId"),
-                                  FOREIGN KEY ("TeacherId") REFERENCES "Teacher"("Id") ON DELETE CASCADE,
-                                  FOREIGN KEY ("SubjectId") REFERENCES "Subject"("Id") ON DELETE CASCADE
+                                  CONSTRAINT "FK_TeacherSubject_Teacher" FOREIGN KEY ("TeacherId") REFERENCES "Teacher" ("Id") ON DELETE CASCADE,
+                                  CONSTRAINT "FK_TeacherSubject_Subject" FOREIGN KEY ("SubjectId") REFERENCES "Subject" ("Id") ON DELETE CASCADE
 );
 
--- TeacherAssignment Table (Many-to-Many relationship between Teacher and Assignment)
+-- TeacherAssignment table
 CREATE TABLE "TeacherAssignment" (
-                                     "TeacherId" UUID,
-                                     "AssignmentId" UUID,
+                                     "TeacherId" UUID NOT NULL,
+                                     "AssignmentId" UUID NOT NULL,
                                      PRIMARY KEY ("TeacherId", "AssignmentId"),
-                                     FOREIGN KEY ("TeacherId") REFERENCES "Teacher"("Id") ON DELETE CASCADE,
-                                     FOREIGN KEY ("AssignmentId") REFERENCES "Assignment"("Id") ON DELETE CASCADE
+                                     CONSTRAINT "FK_TeacherAssignment_Teacher" FOREIGN KEY ("TeacherId") REFERENCES "Teacher" ("Id") ON DELETE CASCADE,
+                                     CONSTRAINT "FK_TeacherAssignment_Assignment" FOREIGN KEY ("AssignmentId") REFERENCES "Assignment" ("Id") ON DELETE CASCADE
 );
-
--- TeacherUser Table (Many-to-Many relationship between Teacher and User)
-CREATE TABLE "TeacherUser" (
-                               "TeacherId" UUID,
-                               "UserId" UUID,
-                               PRIMARY KEY ("TeacherId", "UserId"),
-                               FOREIGN KEY ("TeacherId") REFERENCES "Teacher"("Id") ON DELETE CASCADE,
-                               FOREIGN KEY ("UserId") REFERENCES "User"("Id") ON DELETE CASCADE
-);
-
--- Grade Table
-CREATE TABLE "Grade" (
-                         "Id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-                         "GradeName" VARCHAR UNIQUE NOT NULL
-);
-
--- The relationships with Grade will be managed via Subject and Assignment tables
--- No direct foreign key in Grade table for now.
