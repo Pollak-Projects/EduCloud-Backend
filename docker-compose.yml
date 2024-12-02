@@ -1,0 +1,37 @@
+services:
+  database:
+    container_name: educloud_database
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: pw
+    ports:
+      - ${DB_PORT:-5432}:5432
+    volumes:
+      - learning_pulse_pgdata:/var/lib/postgresql/data
+      - ./db/pg_db.sql:/docker-entrypoint-initdb.d/pg_db.sql
+    networks:
+      - educloud
+
+  pgadmin:
+    container_name: pgadmin4_container
+    image: dpage/pgadmin4
+    restart: always
+    ports:
+      - "8888:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_USERNAME: admin
+      PGADMIN_DEFAULT_PASSWORD: root
+    volumes:
+      - learning_pulse_pgadmin:/var/lib/pgadmin
+    networks:
+      - educloud
+
+volumes:
+  learning_pulse_pgdata:
+  learning_pulse_pgadmin:
+
+networks:
+  educloud: {}
