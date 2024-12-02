@@ -13,8 +13,8 @@ int main()
         // This refused to work
         drogon::app().loadConfigFile("../config.yaml");
         // Run HTTP framework, the method will block in the internal event loop
-        eduCloudDbClientPtr = drogon::app().getDbClient("educloud_default");
         drogon::app().run();
+        eduCloudDbClientPtr = drogon::app().getDbClient("educloud_default");
     }
     catch (const std::exception &e)
     {

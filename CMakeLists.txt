@@ -29,10 +29,6 @@ add_executable(${PROJECT_NAME} main.cc)
 # to add drogon
 add_subdirectory(drogon)
 
-find_package(hiredis CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE hiredis::hiredis)
-
-
 target_link_libraries(${PROJECT_NAME} PRIVATE drogon)
 
 #
