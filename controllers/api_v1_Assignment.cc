@@ -1,20 +1,57 @@
 #include "api_v1_Assignment.h"
 
-#include <Assignment.h>
-
-using namespace orm;
 using namespace api::v1;
 
-extern DbClientPtr eduCloudDbClientPtr;
-
 // Add definition of your processing function here
-void Assignment::getAll(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback)
+void Assignment::getByName(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback,
+                           const std::string& name)
 {
-    Mapper<drogon_model::educloud::Assignment> mp(eduCloudDbClientPtr);
-    auto const assignments = mp.findAll();
-
     auto resp=HttpResponse::newHttpResponse();
     resp->setStatusCode(k501NotImplemented);
-    resp->setBody(assignments.data()->toJson().asString());
+    callback(resp);
+}
+void Assignment::getByProfession(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback,
+                                 const std::string& profession)
+{
+    auto resp=HttpResponse::newHttpResponse();
+    resp->setStatusCode(k501NotImplemented);
+    callback(resp);
+}
+void Assignment::getByProfessionAndCategory(const HttpRequestPtr& req,
+                                            std::function<void(const HttpResponsePtr&)>&& callback,
+                                            const std::string& profession, const std::string& category)
+{
+    auto resp=HttpResponse::newHttpResponse();
+    resp->setStatusCode(k501NotImplemented);
+    callback(resp);
+}
+void Assignment::getByProfessionAndGrade(const HttpRequestPtr& req,
+                                         std::function<void(const HttpResponsePtr&)>&& callback,
+                                         const std::string& profession, const std::string& grade)
+{
+    auto resp=HttpResponse::newHttpResponse();
+    resp->setStatusCode(k501NotImplemented);
+    callback(resp);
+}
+void Assignment::getByCategory(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback,
+                               const std::string& category)
+{
+    auto resp=HttpResponse::newHttpResponse();
+    resp->setStatusCode(k501NotImplemented);
+    callback(resp);
+}
+void Assignment::getByCategoryAndGrade(const HttpRequestPtr& req,
+                                       std::function<void(const HttpResponsePtr&)>&& callback,
+                                       const std::string& category, const std::string& grade)
+{
+    auto resp=HttpResponse::newHttpResponse();
+    resp->setStatusCode(k501NotImplemented);
+    callback(resp);
+}
+void Assignment::getByGrade(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback,
+                            const std::string& grade)
+{
+    auto resp=HttpResponse::newHttpResponse();
+    resp->setStatusCode(k501NotImplemented);
     callback(resp);
 }
